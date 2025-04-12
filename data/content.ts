@@ -22,8 +22,7 @@ export const navLinks: NavLink[] = []
 export const myProjects: Project[] = [
   { name: "Home", description: "个人简介、主页、引导页", link: "https://github.com/gunksd/gunksd" },
   { name: "Blog", description: "个人博客，学习&随笔", link: "https://gunksd.github.io/" },
-  { name: "Vue", description: "Vue.js 项目集合", link: "https://github.com/gunksd/vue" },
-  { name: "OrderManager", description: "订单管理系统", link: "https://github.com/gunksd/order-management" },
+  { name: "Airdrop", description: "空投聚合器网站", link: "https://www.airdrop-yupaopao.xyz/" },
 ]
 
 export const socialLinks: SocialLink[] = [
