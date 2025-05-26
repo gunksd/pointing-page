@@ -6,6 +6,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Awan - 热爱可抵岁月漫长",
   description: "Awan的个人主页，展示我的项目和技能",
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({

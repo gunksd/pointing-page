@@ -14,4 +14,3 @@ export interface SocialLink {
   link: string
   label: string
 }
-

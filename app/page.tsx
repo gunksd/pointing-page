@@ -1,5 +1,6 @@
 import StarTrails from "@/components/StarTrails"
 import MainContent from "@/components/MainContent"
+import MusicPlayer from "@/components/MusicPlayer"
 import { myProjects, socialLinks } from "@/data/content"
 
 export default function Home() {
@@ -14,7 +15,9 @@ export default function Home() {
       <div className="fixed inset-0 z-0 overflow-hidden">
         <StarTrails />
       </div>
+
+      {/* 音乐播放器 */}
+      <MusicPlayer />
     </main>
   )
 }
-

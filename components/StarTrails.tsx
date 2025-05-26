@@ -97,4 +97,3 @@ export default function StarTrails() {
     <canvas ref={canvasRef} className="fixed inset-0 w-full h-full" />
   )
 }
-

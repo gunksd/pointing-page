@@ -35,4 +35,3 @@ export default function Web3Projects({ projects }: Web3ProjectsProps) {
     </>
   )
 }
-

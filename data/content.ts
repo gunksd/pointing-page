@@ -42,4 +42,3 @@ export const socialLinks: SocialLink[] = [
     label: "YouTube",
   },
 ]
-
