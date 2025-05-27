@@ -10,11 +10,10 @@ export default function MusicPlayer() {
 
   // 尝试不同的协议和参数组合
   const urls = [
-    "//music.163.com/outchain/player?type=0&id=8114561628&auto=1&height=66",
     "https://music.163.com/outchain/player?type=0&id=8114561628&auto=1&height=66",
-    "http://music.163.com/outchain/player?type=0&id=8114561628&auto=1&height=66",
-    "//music.163.com/outchain/player?type=0&id=8114561628&auto=0&height=66", // 禁用自动播放
-    "//music.163.com/outchain/player?type=2&id=2025823272&auto=1&height=66", // 尝试单曲模式和不同ID
+    "//music.163.com/outchain/player?type=0&id=8114561628&auto=1&height=66",
+    "https://music.163.com/outchain/player?type=0&id=8114561628&auto=0&height=66",
+    "https://music.163.com/outchain/player?type=2&id=2025823272&auto=1&height=66",
   ]
 
   const [currentUrlIndex, setCurrentUrlIndex] = useState(0)
