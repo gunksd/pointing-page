@@ -15,14 +15,14 @@ const audioList = [
   {
     name: "静悄悄 (肉麻的调调你不会知道)",
     artist: "队长的小斑鸠, 夏以岛",
-    url: `//music.163.com/song/media/outer/url?id=2723688991.mp3`,
+    url: "/music/静悄悄.mp3",
     cover: "http://p1.music.126.net/Ca8woebduPeCzbd9aZzg3g==/109951171419555909.jpg",
     theme: "#ff6b6b"
   },
   {
     name: "Starlight",
     artist: "OdinMann",
-    url: `//music.163.com/song/media/outer/url?id=2602027823.mp3`,
+    url: "/music/Starlight.mp3",
     cover: "http://p1.music.126.net/4RbuQ-o572cx1xVBGyz6rg==/109951169721544585.jpg",
     theme: "#4ecdc4"
   }
