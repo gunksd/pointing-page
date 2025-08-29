@@ -41,6 +41,7 @@ export default function MusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentSong, setCurrentSong] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false)
   const playerRef = useRef<HTMLDivElement>(null)
   const aplayerRef = useRef<any>(null)
 
@@ -292,6 +293,11 @@ export default function MusicPlayer() {
     }
   }
 
+  // 移动端悬浮球展开/收起
+  const toggleMobileExpansion = () => {
+    setIsMobileExpanded(!isMobileExpanded)
+  }
+
   // 移动端悬浮球样式
   if (shouldShowMobile) {
     return (
@@ -348,67 +354,143 @@ export default function MusicPlayer() {
             </div>
           )}
 
-          {/* 悬浮球主体 */}
-          <div className="relative">
-            {/* 主悬浮球 */}
-            <div
-              className="w-16 h-16 bg-gradient-to-br from-red-500/80 to-red-600/90 backdrop-blur-lg rounded-full shadow-2xl border border-white/20 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
-              onClick={togglePlay}
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <div className="text-white">
-                  {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
-                </div>
-              )}
-            </div>
-
-            {/* 当前歌曲封面 */}
-            {!isLoading && audioList[currentSong] && (
-              <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full overflow-hidden border-2 border-white/50">
-                <img
-                  src={audioList[currentSong].cover}
-                  alt={audioList[currentSong].name}
-                  className="w-full h-full object-cover"
-                />
+          {!isMobileExpanded ? (
+            /* 收起状态 - 只显示歌曲封面小球 */
+            <div className="relative">
+              <div
+                className="w-14 h-14 rounded-full overflow-hidden shadow-2xl border-2 border-white/20 cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
+                onClick={toggleMobileExpansion}
+              >
+                {isLoading ? (
+                  <div className="w-full h-full bg-gradient-to-br from-red-500/80 to-red-600/90 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  </div>
+                ) : audioList[currentSong] ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={audioList[currentSong].cover}
+                      alt={audioList[currentSong].name}
+                      className="w-full h-full object-cover"
+                    />
+                    {/* 播放状态指示器 */}
+                    {isPlaying && (
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-red-500/80 to-red-600/90" />
+                )}
               </div>
-            )}
-
-            {/* 控制按钮组 */}
-            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 flex gap-2">
-              <button
-                onClick={prevSong}
-                className="w-8 h-8 bg-black/50 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
-              >
-                <SkipBack size={14} />
-              </button>
-              <button
-                onClick={showPlaylist}
-                className="w-8 h-8 bg-black/50 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
-              >
-                <List size={14} />
-              </button>
-              <button
-                onClick={nextSong}
-                className="w-8 h-8 bg-black/50 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
-              >
-                <SkipForward size={14} />
-              </button>
             </div>
+          ) : (
+            /* 展开状态 - 显示完整控制界面 */
+            <div className="relative animate-in slide-in-from-bottom-5 fade-in duration-300">
+              {/* 主控制区域 */}
+              <div className="bg-gradient-to-br from-black/95 to-gray-900/95 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden w-80">
+                {/* 装饰性渐变背景 */}
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+                
+                {/* 歌曲信息和封面区域 */}
+                {!isLoading && audioList[currentSong] && (
+                  <div className="relative p-6">
+                    {/* 关闭按钮 */}
+                    <button
+                      onClick={toggleMobileExpansion}
+                      className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200 z-10"
+                    >
+                      ×
+                    </button>
+                    
+                    {/* 专辑封面和歌曲信息 */}
+                    <div className="flex items-center gap-5 mb-6">
+                      <div 
+                        className="relative w-16 h-16 rounded-2xl overflow-hidden cursor-pointer group shadow-lg"
+                        onClick={togglePlay}
+                      >
+                        <img
+                          src={audioList[currentSong].cover}
+                          alt={audioList[currentSong].name}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-300"
+                        />
+                        {/* 播放按钮覆盖层 */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-black/40 to-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200">
+                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                            {isPlaying ? 
+                              <Pause size={16} className="text-black" /> : 
+                              <Play size={16} className="text-black ml-0.5" />
+                            }
+                          </div>
+                        </div>
+                        {/* 播放状态光环 */}
+                        {isPlaying && (
+                          <div className="absolute -inset-1 bg-gradient-to-r from-red-500/50 to-pink-500/50 rounded-2xl blur-sm animate-pulse" />
+                        )}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0 pr-8">
+                        <h3 className="text-white font-semibold text-base truncate leading-tight">
+                          {audioList[currentSong].name}
+                        </h3>
+                        <p className="text-white/70 text-sm truncate mt-1">
+                          {audioList[currentSong].artist}
+                        </p>
+                        {/* 播放状态指示 */}
+                        <div className="flex items-center gap-2 mt-2">
+                          {isPlaying ? (
+                            <div className="flex items-center gap-1">
+                              <div className="w-1 h-3 bg-red-400 rounded-full animate-pulse" />
+                              <div className="w-1 h-2 bg-red-400/70 rounded-full animate-pulse delay-75" />
+                              <div className="w-1 h-4 bg-red-400 rounded-full animate-pulse delay-150" />
+                              <span className="text-red-400 text-xs font-medium ml-2">正在播放</span>
+                            </div>
+                          ) : (
+                            <span className="text-white/40 text-xs">已暂停</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-            {/* 音乐信息提示 */}
-            {!isLoading && audioList[currentSong] && (
-              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-lg px-3 py-1 border border-white/10 min-w-max">
-                <div className="text-white text-xs font-medium text-center">
-                  {audioList[currentSong].name}
-                </div>
-                <div className="text-white/60 text-xs text-center">
-                  {audioList[currentSong].artist}
-                </div>
+                    {/* 控制按钮区域 */}
+                    <div className="flex items-center justify-center gap-3 px-2">
+                      <button
+                        onClick={prevSong}
+                        className="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl border border-white/10 flex items-center justify-center text-white/80 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
+                      >
+                        <SkipBack size={18} />
+                      </button>
+                      
+                      {/* 主播放按钮 */}
+                      <button
+                        onClick={togglePlay}
+                        className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 rounded-2xl flex items-center justify-center text-white transition-all duration-200 hover:scale-110 active:scale-95 shadow-xl hover:shadow-red-500/25"
+                      >
+                        {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
+                      </button>
+                      
+                      <button
+                        onClick={nextSong}
+                        className="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl border border-white/10 flex items-center justify-center text-white/80 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
+                      >
+                        <SkipForward size={18} />
+                      </button>
+                      
+                      <button
+                        onClick={showPlaylist}
+                        className="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 rounded-2xl border border-white/10 flex items-center justify-center text-white/80 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
+                      >
+                        <List size={18} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+              
+              {/* 底部装饰光效 */}
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-red-500/20 to-transparent blur-sm" />
+            </div>
+          )}
         </div>
       </>
     )
