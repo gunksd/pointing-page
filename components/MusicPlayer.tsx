@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Play, Pause, SkipForward, SkipBack, List } from "lucide-react"
+import { Play, Pause, SkipForward, SkipBack, List, Minimize2, Maximize2 } from "lucide-react"
 
 // 音乐歌曲列表
 const audioList = [
@@ -356,10 +356,11 @@ export default function MusicPlayer() {
 
           {!isMobileExpanded ? (
             /* 收起状态 - 只显示歌曲封面小球 */
-            <div className="relative">
+            <div className="relative group">
               <div
                 className="w-14 h-14 rounded-full overflow-hidden shadow-2xl border-2 border-white/20 cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
                 onClick={toggleMobileExpansion}
+                title="展开播放器"
               >
                 {isLoading ? (
                   <div className="w-full h-full bg-gradient-to-br from-red-500/80 to-red-600/90 flex items-center justify-center">
@@ -378,6 +379,10 @@ export default function MusicPlayer() {
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                       </div>
                     )}
+                    {/* 展开提示图标 */}
+                    <div className="absolute top-1 right-1 w-4 h-4 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Maximize2 size={10} className="text-white" />
+                    </div>
                   </div>
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-red-500/80 to-red-600/90" />
@@ -395,12 +400,13 @@ export default function MusicPlayer() {
                 {/* 歌曲信息和封面区域 */}
                 {!isLoading && audioList[currentSong] && (
                   <div className="relative p-6">
-                    {/* 关闭按钮 */}
+                    {/* 缩小按钮 */}
                     <button
                       onClick={toggleMobileExpansion}
                       className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-all duration-200 z-10"
+                      title="缩小播放器"
                     >
-                      ×
+                      <Minimize2 size={16} />
                     </button>
                     
                     {/* 专辑封面和歌曲信息 */}
