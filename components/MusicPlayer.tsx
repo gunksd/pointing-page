@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { ChevronUp, ChevronDown } from "lucide-react"
+import { Play, Pause, SkipForward, SkipBack, List } from "lucide-react"
 
 // 音乐歌曲列表
 const audioList = [
@@ -38,6 +38,9 @@ export default function MusicPlayer() {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentSong, setCurrentSong] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
   const playerRef = useRef<HTMLDivElement>(null)
   const aplayerRef = useRef<any>(null)
 
@@ -45,6 +48,18 @@ export default function MusicPlayer() {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // 检测移动端（只在客户端运行）
+  useEffect(() => {
+    if (!isMounted) return
+    
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [isMounted])
 
   useEffect(() => {
     if (!isMounted) return
@@ -198,6 +213,14 @@ export default function MusicPlayer() {
           // 监听播放列表展开/收起
           aplayerRef.current.on('listshow', () => setIsExpanded(true))
           aplayerRef.current.on('listhide', () => setIsExpanded(false))
+          
+          // 监听播放状态
+          aplayerRef.current.on('play', () => setIsPlaying(true))
+          aplayerRef.current.on('pause', () => setIsPlaying(false))
+          aplayerRef.current.on('canplay', () => setIsPlaying(!aplayerRef.current.audio.paused))
+          
+          // 监听歌曲切换
+          aplayerRef.current.on('listswitch', (index: any) => setCurrentSong(index.index))
 
           setIsLoading(false)
         } catch (error) {
@@ -232,6 +255,166 @@ export default function MusicPlayer() {
     return null
   }
 
+  // 确保初始渲染一致性，避免水合不匹配
+  const shouldShowMobile = isMounted && isMobile
+
+  // 播放器控制函数
+  const togglePlay = () => {
+    if (aplayerRef.current) {
+      if (isPlaying) {
+        aplayerRef.current.pause()
+      } else {
+        aplayerRef.current.play()
+      }
+    }
+  }
+
+  const nextSong = () => {
+    if (aplayerRef.current) {
+      aplayerRef.current.skipForward()
+    }
+  }
+
+  const prevSong = () => {
+    if (aplayerRef.current) {
+      aplayerRef.current.skipBack()
+    }
+  }
+
+  const showPlaylist = () => {
+    setIsExpanded(!isExpanded)
+    if (aplayerRef.current) {
+      if (isExpanded) {
+        aplayerRef.current.list.hide()
+      } else {
+        aplayerRef.current.list.show()
+      }
+    }
+  }
+
+  // 移动端悬浮球样式
+  if (shouldShowMobile) {
+    return (
+      <>
+        {/* 隐藏的APlayer */}
+        <div className="opacity-0 pointer-events-none absolute -z-10">
+          <div ref={playerRef} className="aplayer-container" />
+        </div>
+
+        {/* 悬浮球 */}
+        <div className="fixed bottom-20 right-4 z-50">
+          {/* 展开的播放列表 */}
+          {isExpanded && (
+            <div className="mb-4 w-80 max-h-60 overflow-y-auto bg-black/90 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-medium">播放列表</h3>
+                  <button
+                    onClick={showPlaylist}
+                    className="text-gray-400 hover:text-white p-1"
+                  >
+                    <List size={18} />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {audioList.map((song, index) => (
+                    <div
+                      key={index}
+                      onClick={() => aplayerRef.current?.list.switch(index)}
+                      className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                        currentSong === index
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'text-white/80 hover:bg-white/5'
+                      }`}
+                    >
+                      <img
+                        src={song.cover}
+                        alt={song.name}
+                        className="w-8 h-8 rounded object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{song.name}</div>
+                        <div className="text-xs text-gray-400 truncate">{song.artist}</div>
+                      </div>
+                      {currentSong === index && isPlaying && (
+                        <div className="w-3 h-3 flex items-center justify-center">
+                          <div className="w-1 h-1 bg-red-400 rounded-full animate-pulse" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 悬浮球主体 */}
+          <div className="relative">
+            {/* 主悬浮球 */}
+            <div
+              className="w-16 h-16 bg-gradient-to-br from-red-500/80 to-red-600/90 backdrop-blur-lg rounded-full shadow-2xl border border-white/20 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95"
+              onClick={togglePlay}
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <div className="text-white">
+                  {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
+                </div>
+              )}
+            </div>
+
+            {/* 当前歌曲封面 */}
+            {!isLoading && audioList[currentSong] && (
+              <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full overflow-hidden border-2 border-white/50">
+                <img
+                  src={audioList[currentSong].cover}
+                  alt={audioList[currentSong].name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            {/* 控制按钮组 */}
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 flex gap-2">
+              <button
+                onClick={prevSong}
+                className="w-8 h-8 bg-black/50 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+              >
+                <SkipBack size={14} />
+              </button>
+              <button
+                onClick={showPlaylist}
+                className="w-8 h-8 bg-black/50 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+              >
+                <List size={14} />
+              </button>
+              <button
+                onClick={nextSong}
+                className="w-8 h-8 bg-black/50 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+              >
+                <SkipForward size={14} />
+              </button>
+            </div>
+
+            {/* 音乐信息提示 */}
+            {!isLoading && audioList[currentSong] && (
+              <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-lg px-3 py-1 border border-white/10 min-w-max">
+                <div className="text-white text-xs font-medium text-center">
+                  {audioList[currentSong].name}
+                </div>
+                <div className="text-white/60 text-xs text-center">
+                  {audioList[currentSong].artist}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  // 桌面端完整播放器
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <div className={`transition-all duration-500 ${isExpanded ? 'w-96' : 'w-80'}`}>
@@ -247,7 +430,7 @@ export default function MusicPlayer() {
               className="text-gray-400 hover:text-white transition-colors p-1"
               title={isExpanded ? '收起列表' : '展开列表'}
             >
-              {isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+              <List size={16} />
             </button>
           </div>
         </div>

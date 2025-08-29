@@ -19,7 +19,7 @@ export default function SocialLinks({ links }: SocialLinksProps) {
       <div className="flex flex-wrap justify-between">
         {links.map((item, index) => (
           <div key={index} className="mx-10 my-4 basis-1/6">
-            <Link href={item.link} className="bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow-md flex-col justify-between items-center transition backdrop-blur-3xl backdrop-opacity-60 hover:backdrop-opacity-100 hover:-translate-y-2">
+            <Link href={item.link} target="_blank" rel="noopener noreferrer" className="bg-white/5 hover:bg-white/10 p-2 rounded-lg shadow-md flex-col justify-between items-center transition backdrop-blur-3xl backdrop-opacity-60 hover:backdrop-opacity-100 hover:-translate-y-2">
               <div className="mb-1 text-white flex justify-center items-center" dangerouslySetInnerHTML={{ __html: item.icon }} />
               <div className="text-bold opacity-75 text-white">{item.label}</div>
             </Link>
