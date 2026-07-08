@@ -23,7 +23,7 @@ export const myProjects: Project[] = [
   {
     name: "Home",
     description: "个人简介、主页、引导页",
-    link: "https://github.com/gunksd/gunksd",
+    link: "https://github.com/gunksd",
   },
   {
     name: "Blog",
