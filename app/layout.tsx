@@ -1,19 +1,25 @@
-import type React from "react"
-import "@/styles/globals.css"
-import { Inter } from "next/font/google"
+import type React from "react";
+import "@/styles/globals.css";
+import { Inter, Noto_Serif_SC } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const notoSerif = Noto_Serif_SC({
+  weight: ["400", "500", "700", "900"],
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
 
 export const metadata = {
   title: "Awan - 热爱可抵岁月漫长",
   description: "Awan的个人主页，展示我的项目和技能",
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="zh">
@@ -35,9 +41,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} bg-black`}>{children}</body>
+      <body
+        className={`${inter.variable} ${notoSerif.variable} ${inter.className} bg-black`}
+      >
+        {children}
+      </body>
     </html>
-  )
+  );
 }
 
-import "./globals.css"
+import "./globals.css";
