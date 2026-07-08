@@ -12,20 +12,39 @@ export default function StarTrails() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let showWidth: number, showHeight: number
+    let showWidth = window.innerWidth
+    let showHeight = window.innerHeight
+    // Accumulated rotation. Kept explicit so we can restore the exact transform
+    // after a resize (setting canvas.width silently resets the ctx matrix).
+    let angle = 0
+    const STEP = (0.025 * Math.PI) / 180 // fixed direction, per-frame increment
 
-    const resizeCanvas = () => {
-      showWidth = window.innerWidth
-      showHeight = window.innerHeight
-      canvas.width = showWidth
-      canvas.height = showHeight
-      ctx.fillStyle = 'rgba(0,0,0,1)'
-      ctx.fillRect(0, 0, showWidth, showHeight)
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
+
+    // Establish the off-center rotation pivot (identical look to the original).
+    // Re-applied after every resize so the pivot never drifts back to (0,0),
+    // which is what used to make the spin appear to reverse direction.
+    const applyPivot = () => {
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      if (showWidth < showHeight) ctx.translate(showWidth, showHeight)
+      else ctx.translate(showWidth, 0)
+      ctx.rotate(angle)
     }
 
-    resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
+    const paintBackground = () => {
+      ctx.save()
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.fillStyle = 'rgba(0,0,0,1)'
+      ctx.fillRect(0, 0, showWidth, showHeight)
+      ctx.restore()
+    }
 
+    canvas.width = showWidth
+    canvas.height = showHeight
+
+    // Pre-render the whole star field once onto an oversized offscreen canvas.
     const longSide = Math.max(showWidth, showHeight)
     const helpCanvas = document.createElement('canvas')
     helpCanvas.width = longSide * 2.6
@@ -50,24 +69,41 @@ export default function StarTrails() {
       color: randomColor(),
     }))
 
-    const drawStar = () => {
-      stars.forEach(star => {
-        helpCtx.beginPath()
-        helpCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2, true)
-        helpCtx.fillStyle = star.color
-        helpCtx.closePath()
-        helpCtx.fill()
-      })
+    stars.forEach(star => {
+      helpCtx.beginPath()
+      helpCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2, true)
+      helpCtx.fillStyle = star.color
+      helpCtx.closePath()
+      helpCtx.fill()
+    })
+
+    paintBackground()
+    applyPivot()
+
+    // Reduced motion: draw a single static frame, no rotation loop.
+    if (prefersReducedMotion) {
+      ctx.drawImage(helpCanvas, -helpCanvas.width / 2, -helpCanvas.height / 2)
+      return
     }
 
-    drawStar()
+    const resizeCanvas = () => {
+      const w = window.innerWidth
+      const h = window.innerHeight
+      // Ignore mobile URL-bar height-only jitter: it fires resize constantly
+      // while scrolling and used to wipe the transform every time.
+      if (w === showWidth) return
+      showWidth = w
+      showHeight = h
+      canvas.width = w // implicitly resets the ctx transform + clears the bitmap
+      canvas.height = h
+      paintBackground()
+      applyPivot() // rebuild pivot + restore accumulated angle → no direction flip
+    }
 
-    if (showWidth < showHeight)
-      ctx.translate(showWidth, showHeight)
-    else
-      ctx.translate(showWidth, 0)
+    window.addEventListener('resize', resizeCanvas)
 
     let drawTimes = 0
+    let rafId = 0
 
     const loop = () => {
       ctx.drawImage(helpCanvas, -helpCanvas.width / 2, -helpCanvas.height / 2)
@@ -78,17 +114,19 @@ export default function StarTrails() {
         ctx.fillRect(-(longSide * 3), -(longSide * 3), longSide * 6, longSide * 6)
       }
 
-      ctx.rotate(0.025 * Math.PI / 180)
+      ctx.rotate(STEP)
+      angle += STEP
     }
 
     const animate = () => {
-      requestAnimationFrame(animate)
+      rafId = requestAnimationFrame(animate)
       loop()
     }
 
     animate()
 
     return () => {
+      cancelAnimationFrame(rafId)
       window.removeEventListener('resize', resizeCanvas)
     }
   }, [])
