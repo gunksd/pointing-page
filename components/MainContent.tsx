@@ -153,6 +153,8 @@ function Projects({ title, projects }: { title: string; projects: Project[] }) {
           <Link
             key={index}
             href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group flex items-center gap-6 py-6 transition-colors duration-300"
             style={{ borderBottom: "1px solid var(--hair-soft)" }}
           >
@@ -205,6 +207,8 @@ function SocialLinks({ links }: { links: SocialLink[] }) {
           <Link
             key={index}
             href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group relative flex items-center gap-3 p-4 rounded-lg overflow-hidden transition-all duration-300"
             style={{
               border: "1px solid var(--hair-soft)",
